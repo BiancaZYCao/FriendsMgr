@@ -4,12 +4,12 @@ const configJson = require('../config.json')
 VERSION = configJson.version
 ALL_TYPES = configJson.relationship_type
 
-//GET /color_mode
+//GET /app version
 infoRouter.route('/version').get((req, res) => {
   return res.status(200).send(VERSION)
 })
 
-//GET /style_choice
+//GET /relationshipTypes
 infoRouter.route('/relationshipTypes').get((req, res) => {
   return res.status(200).send(ALL_TYPES)
 })

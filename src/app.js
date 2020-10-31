@@ -2,20 +2,20 @@ const express = require('express')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const cors = require('cors')
-//use mongoose connecting to mongoDB
-// const mongoose = require('mongoose')
-// mongoose
-//   .connect('mongodb://localhost:27017/friendslist', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log('Connected to local MongoDB!')
-//   })
-//   .catch((err) => {
-//     console.log('Cannot connect to the database', err)
-//     process.exit()
-//   })
+// use mongoose connecting to mongoDB
+const mongoose = require('mongoose')
+mongoose
+  .connect('mongodb://localhost:27017/friendsMgr', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('Connected to local MongoDB!')
+  })
+  .catch((err) => {
+    console.log('Cannot connect to the database', err)
+    process.exit()
+  })
 
 require('dotenv').config()
 
