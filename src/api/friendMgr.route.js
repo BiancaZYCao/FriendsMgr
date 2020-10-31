@@ -3,6 +3,7 @@ const { ConnectionBase } = require('mongoose')
 const friendRouter = express.Router()
 const User = require('../models/user')
 const util = require('../models/util')
+const validator = require('../validator')
 
 //1. POST create a new friend connection
 friendRouter.route('/addNewConn').post(async (req, res) => {
@@ -15,6 +16,10 @@ friendRouter.route('/addNewConn').post(async (req, res) => {
 
 //2. GET  retrieve the friends’ list for an email address.
 friendRouter.route('/getFriends/:email').get(async (req, res) => {
+  if (!validator.ValidateEmail(req.params.email))
+    return res
+      .status(400)
+      .json({ error: 'TypeError', message: 'Invalid email address' })
   const result = await util.getFrds(req.params.email)
   if (result.code == 'SUCCESS') return res.status(200).send(result.friendsList)
   else return res.status(500).json(result)
@@ -24,6 +29,13 @@ friendRouter.route('/getFriends/:email').get(async (req, res) => {
 friendRouter
   .route('/getCommonFriends/:emailOfUser1/:emailOfUser2')
   .get(async (req, res) => {
+    if (
+      !validator.ValidateEmail(req.params.emailOfUser1) ||
+      !validator.ValidateEmail(req.params.emailOfUser2)
+    )
+      return res
+        .status(400)
+        .json({ error: 'TypeError', message: 'Invalid email address' })
     let query = await util.getFrds(req.params.emailOfUser1)
     let [friendsOfUser1, friendsOfUser2] = [[], []]
     if (query.code == 'SUCCESS') friendsOfUser1 = query.friendsList
