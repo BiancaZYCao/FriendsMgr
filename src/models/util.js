@@ -153,9 +153,57 @@ const block = async (requestorEmail, targetEmail) => {
     }
   }
 }
+const getUpdatesReceiveList = async (userEmail) => {
+  // Eligibility for receiving updates from i.e. “​alex@example.com​”:
+  // ● Has not blocked updates from “​alex@example.com”​ ,
+  //and At least one of the following
+  //      ● Has a friend connection with “​alex@example.com”​
+  //      ● Has subscribed to updates from “​alex@example.com​”
+  try {
+    let receivingList = []
+    const blockedList = await User.find({
+      blockList: { $elemMatch: { $in: userEmail } },
+    }).exec()
+    const friendingList = await User.find({
+      friendsList: { $elemMatch: { $in: userEmail } },
+    }).exec()
+    const subscribingList = await User.find({
+      subscriptionList: { $elemMatch: { $in: userEmail } },
+    }).exec()
+    for (f of friendingList) {
+      let friendEmail = f.email
+      if (receivingList.indexOf(friendEmail) == -1) {
+        receivingList.push(friendEmail)
+      }
+    }
+    for (s of subscribingList) {
+      let subEmail = s.email
+      if (receivingList.indexOf(subEmail) == -1) {
+        receivingList.push(subEmail)
+      }
+    }
+    for (b of blockedList) {
+      let blockedEmail = b.email
+      let id = receivingList.indexOf(blockedEmail)
+      if (id > -1) {
+        receivingList.splice(id, 1)
+      }
+    }
+    return {
+      code: CODE.SUCCESS,
+      receivingList: receivingList,
+    }
+  } catch (err) {
+    return {
+      error: err,
+      code: CODE.DATA_QUERY_ERROR,
+    }
+  }
+}
 module.exports = {
   createConn,
   getFrds,
   subscribe,
   block,
+  getUpdatesReceiveList,
 }

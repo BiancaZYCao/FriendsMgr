@@ -87,12 +87,17 @@ friendRouter.route('/subscribe').post(async (req, res) => {
 })
 
 //6. GET retrieve all email addresses that can receive updates from an email address.
-// Eligibility for receiving updates from i.e. “​alex@example.com​”:
-// ● Has not blocked updates from “​alex@example.com”​ ,
-//and At least one of the following
-//      ● Has a friend connection with “​alex@example.com”​
-//      ● Has subscribed to updates from “​alex@example.com​”
-//      ● Has been @mentioned in the update
+friendRouter.route('/getUpdatesReceiveList/:email').get(async (req, res) => {
+  if (!validator.ValidateEmail(req.params.email))
+    return res
+      .status(400)
+      .json({ error: 'TypeError', message: 'Invalid email address' })
+  const result = await util.getUpdatesReceiveList(req.params.email)
+  console.log(result)
+  if (result.code == 'SUCCESS')
+    return res.status(200).json(result.receivingList)
+  else return res.status(500).json(result)
+})
 
 //7. As a user, I need a backend scheduler to send out updates via email server between the friend’s connection.
 
