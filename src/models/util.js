@@ -1,6 +1,6 @@
 const User = require('./user')
+const Msg = require('./message')
 const CODE = require('../common.json').code
-const e = require('express')
 
 const createConn = async (inputObject) => {
   try {
@@ -200,10 +200,40 @@ const getUpdatesReceiveList = async (userEmail) => {
     }
   }
 }
+const savePostUpdateMsg = async (sendFrom, sendTo, postMessage) => {
+  try {
+    const mentionedList = recognizeEmail(postMessage)
+    const postUpdate = new Msg({
+      sendFrom: sendFrom,
+      sendTo: sendTo,
+      message: postMessage,
+      mentionedList: mentionedList,
+    })
+    postUpdate.save()
+    return {
+      code: CODE.SUCCESS,
+    }
+  } catch (err) {
+    return {
+      error: err,
+      code: CODE.DATA_QUERY_ERROR,
+    }
+  }
+}
+
+const recognizeEmail = (inputText) => {
+  let regEmail = /@\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/g
+  const mentionedListWAt = inputText.match(regEmail)
+  const mentionedList = mentionedListWAt.map((x) => x.replace(/^@/, ''))
+  return mentionedList
+}
+
 module.exports = {
   createConn,
   getFrds,
   subscribe,
   block,
   getUpdatesReceiveList,
+  savePostUpdateMsg,
+  recognizeEmail,
 }

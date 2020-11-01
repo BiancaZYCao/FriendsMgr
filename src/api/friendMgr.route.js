@@ -80,7 +80,6 @@ friendRouter.route('/subscribe').post(async (req, res) => {
       .status(400)
       .json({ error: 'TypeError', message: 'Invalid email address' })
   const result = await util.block(req.body.requestor, req.body.target)
-  console.log(result)
   if (result.code == 'SUCCESS') return res.status(200).json({ success: true })
   else if (result.code == 'LOGICAL_FAILURE') return res.status(400).json(result)
   else return res.status(500).json(result)
@@ -93,12 +92,33 @@ friendRouter.route('/getUpdatesReceiveList/:email').get(async (req, res) => {
       .status(400)
       .json({ error: 'TypeError', message: 'Invalid email address' })
   const result = await util.getUpdatesReceiveList(req.params.email)
-  console.log(result)
   if (result.code == 'SUCCESS')
     return res.status(200).json(result.receivingList)
   else return res.status(500).json(result)
 })
 
 //7. As a user, I need a backend scheduler to send out updates via email server between the friend’s connection.
+//Api 1 post message Send_from_email+Send_To_email+Message
+friendRouter.route('/postUpdateMsg').post(async (req, res) => {
+  if (
+    !validator.ValidateEmail(req.body.sendFrom) ||
+    !validator.ValidateEmail(req.body.sendTo)
+  )
+    return res
+      .status(400)
+      .json({ error: 'TypeError', message: 'Invalid email address' })
+
+  const result = await util.savePostUpdateMsg(
+    req.body.sendFrom,
+    req.body.sendTo,
+    req.body.message
+  )
+  console.log(result)
+  if (result.code == 'SUCCESS') return res.status(200).json({ success: true })
+  else return res.status(500).json(result)
+})
+
+//Api-other 2 decide the real receiver
+//Api-other 3 send email (scheduler)
 
 module.exports = friendRouter
