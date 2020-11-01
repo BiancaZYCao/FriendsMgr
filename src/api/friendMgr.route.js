@@ -55,6 +55,20 @@ friendRouter
   })
 
 //4. POST subscribe to updates from an email address.
+friendRouter.route('/subscribe').post(async (req, res) => {
+  if (
+    !validator.ValidateEmail(req.body.requestor) ||
+    !validator.ValidateEmail(req.body.target)
+  )
+    return res
+      .status(400)
+      .json({ error: 'TypeError', message: 'Invalid email address' })
+  const result = await util.subscribe(req.body.requestor, req.body.target)
+  console.log(result)
+  if (result.code == 'SUCCESS') return res.status(200).json({ success: true })
+  else if (result.code == 'LOGICAL_FAILURE') return res.status(400).json(result)
+  else return res.status(500).json(result)
+})
 
 //5. POST  block updates from an email address
 // ● If they are connected as friends then “andy” will no longer receive notifications from “john”

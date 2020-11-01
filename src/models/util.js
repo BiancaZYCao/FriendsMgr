@@ -100,8 +100,36 @@ const getFrds = async (userEmail) => {
     }
   }
 }
+const subscribe = async (requestorEmail, targetEmail) => {
+  try {
+    let requestor = await User.findOne({ email: requestorEmail }).exec()
+    if (!requestor)
+      requestor = new User({
+        email: emailHost,
+        subscriptionList: [targetEmail],
+      })
+    else {
+      if (requestor.blockList.indexOf(targetEmail) > -1)
+        return {
+          code: CODE.LOGICAL_FAILURE,
+          message: 'Fail to subscribe: You blocked this email address.',
+        }
+      else requestor.subscriptionList.push(targetEmail)
+    }
+    requestor.save()
+    return {
+      code: CODE.SUCCESS,
+    }
+  } catch (err) {
+    return {
+      error: err,
+      code: CODE.DATA_QUERY_ERROR,
+    }
+  }
+}
 
 module.exports = {
   createConn,
   getFrds,
+  subscribe,
 }
