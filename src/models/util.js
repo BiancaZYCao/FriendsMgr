@@ -127,9 +127,35 @@ const subscribe = async (requestorEmail, targetEmail) => {
     }
   }
 }
-
+const block = async (requestorEmail, targetEmail) => {
+  // ● If they are connected as friends
+  //    then “andy” will no longer receive notifications from “john”
+  // ● If they are not connected as friends, then no new friends
+  //    connection can be added
+  try {
+    let requestor = await User.findOne({ email: requestorEmail }).exec()
+    if (!requestor)
+      requestor = new User({
+        email: emailHost,
+        blockList: [targetEmail],
+      })
+    else {
+      requestor.blockListList.push(targetEmail)
+    }
+    requestor.save()
+    return {
+      code: CODE.SUCCESS,
+    }
+  } catch (err) {
+    return {
+      error: err,
+      code: CODE.DATA_QUERY_ERROR,
+    }
+  }
+}
 module.exports = {
   createConn,
   getFrds,
   subscribe,
+  block,
 }

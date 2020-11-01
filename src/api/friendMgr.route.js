@@ -64,15 +64,27 @@ friendRouter.route('/subscribe').post(async (req, res) => {
       .status(400)
       .json({ error: 'TypeError', message: 'Invalid email address' })
   const result = await util.subscribe(req.body.requestor, req.body.target)
-  console.log(result)
+  // console.log(result)
   if (result.code == 'SUCCESS') return res.status(200).json({ success: true })
   else if (result.code == 'LOGICAL_FAILURE') return res.status(400).json(result)
   else return res.status(500).json(result)
 })
 
 //5. POST  block updates from an email address
-// ● If they are connected as friends then “andy” will no longer receive notifications from “john”
-// ● If they are not connected as friends, then no new friends connection can be added
+friendRouter.route('/subscribe').post(async (req, res) => {
+  if (
+    !validator.ValidateEmail(req.body.requestor) ||
+    !validator.ValidateEmail(req.body.target)
+  )
+    return res
+      .status(400)
+      .json({ error: 'TypeError', message: 'Invalid email address' })
+  const result = await util.block(req.body.requestor, req.body.target)
+  console.log(result)
+  if (result.code == 'SUCCESS') return res.status(200).json({ success: true })
+  else if (result.code == 'LOGICAL_FAILURE') return res.status(400).json(result)
+  else return res.status(500).json(result)
+})
 
 //6. GET retrieve all email addresses that can receive updates from an email address.
 // Eligibility for receiving updates from i.e. “​alex@example.com​”:
